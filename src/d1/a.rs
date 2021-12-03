@@ -2,7 +2,7 @@ pub fn main(input: std::io::Lines<std::io::BufReader<std::fs::File>>) -> String 
   let mut previous_depth: Option<usize> = None;
   let mut increases = 0;
   for line in input {
-    let line = line.expect("Could not read line from standard in");
+    let line = line.expect("Could not read line");
     let new_depth = match line.parse::<usize>() {
       Ok(num) => num,
       Err(err) => panic!(

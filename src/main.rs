@@ -1,6 +1,7 @@
 use std::io::prelude::*;
 
 mod d1;
+mod d2;
 
 fn main() {
   let args: Vec<String> = std::env::args().collect();
@@ -17,6 +18,11 @@ fn main() {
     "1" => match args[2].as_str() {
       "a" => d1::a::main(input),
       "b" => d1::b::main(input),
+      _ => panic!("solution not found"),
+    },
+    "2" => match args[2].as_str() {
+      "a" => d2::a::main(input),
+      "b" => d2::b::main(input),
       _ => panic!("solution not found"),
     },
     _ => panic!("solution not found"),
