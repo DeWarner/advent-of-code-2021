@@ -1,6 +1,7 @@
 mod d1;
 mod d2;
 mod d3;
+mod d4;
 
 mod read;
 
@@ -29,6 +30,11 @@ fn main() {
     "3" => match args[2].as_str() {
       "a" => d3::a::main(input),
       "b" => d3::b::main(input_file),
+      _ => panic!("solution not found"),
+    },
+    "4" => match args[2].as_str() {
+      "a" => d4::a::main(input_file),
+      "b" => d4::b::main(input_file),
       _ => panic!("solution not found"),
     },
     _ => panic!("solution not found"),
