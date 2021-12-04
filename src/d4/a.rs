@@ -9,18 +9,18 @@ impl Card {
     }
   }
   fn check(&self) -> bool {
-    'outer: for i in 0..5 {
+    'rows: for i in 0..5 {
       for j in 0..5 {
         if let Square::Unmarked(_) = self.0[i].0[j] {
-          continue 'outer;
+          continue 'rows;
         }
       }
       return true;
     }
-    'outer: for j in 0..5 {
+    'cols: for j in 0..5 {
         for i in 0..5 {
         if let Square::Unmarked(_) = self.0[i].0[j] {
-          continue 'outer;
+          continue 'cols;
         }
       }
       return true;
