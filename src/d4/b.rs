@@ -9,18 +9,18 @@ impl Card {
     }
   }
   fn check(&self) -> bool {
-    'outer: for i in 0..5 {
+    'rows: for i in 0..5 {
       for j in 0..5 {
         if let Square::Unmarked(_) = self.0[i].0[j] {
-          continue 'outer;
+          continue 'rows;
         }
       }
       return true;
     }
-    'outer: for j in 0..5 {
+    'cols: for j in 0..5 {
         for i in 0..5 {
         if let Square::Unmarked(_) = self.0[i].0[j] {
-          continue 'outer;
+          continue 'cols;
         }
       }
       return true;
@@ -151,18 +151,32 @@ pub fn main(input_file: String) -> String {
     let mut unmarked: i32 = 0;
     let mut last_num: i32 = 0;
     let mut score: i32 = 0;
-    'caller: for number in numbers {
-        for card in &mut bingo_cards {
-            card.mark(number);
-            println!("{}", card);
-            if card.check() {
-              unmarked = card.sum_unmarked();
-              last_num = number;
-              score = number * unmarked;
-              break 'caller
+    let mut remove: Option<Vec<usize>> = None;
+    for number in numbers {
+      for (i, card) in &mut bingo_cards.iter_mut().enumerate() {
+        card.mark(number);
+        println!("{}", card);
+        if card.check() {
+          unmarked = card.sum_unmarked();
+          last_num = number;
+          score = number * unmarked;
+          // break 'caller
+          match &mut remove {
+            Some(v) => {
+              v.push(i)
             }
+            None => remove = Some(vec!(i))
+          };
         }
-        println!("");
+      }
+      if let Some(v) = &remove {
+        println!("removing: {:?}", v);
+        for i in v.iter().rev() {
+          bingo_cards.remove(*i);
+        }
+      }
+      remove = None;
+      println!("");
     }
 
     format!("num: {:?}, sum: {:?}, answer : {:?}", last_num, unmarked, score)
