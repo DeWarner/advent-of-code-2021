@@ -50,21 +50,20 @@ pub fn main(input_file: String) -> String {
         _ => panic!("invalid charset"),
       }
     }
-    'propositions: for (i, value) in contains6.iter().enumerate() {
+    'proposition_6_4: for (i, value) in contains6.iter().enumerate() {
       for c in exact4.chars() {
         if !value.contains(c) {
-          continue 'propositions;
+          continue 'proposition_6_4;
         }
       }
       exact9 = value;
       contains6.remove(i);
       break;
     }
-
-    'propositions: for (i, value) in contains6.iter().enumerate() {
+    'proposition_6_7: for (i, value) in contains6.iter().enumerate() {
       for c in exact7.chars() {
         if !value.contains(c) {
-          continue 'propositions;
+          continue 'proposition_6_7;
         }
       }
       exact0 = value;
@@ -72,19 +71,17 @@ pub fn main(input_file: String) -> String {
       break;
     }
     exact6 = contains6[0];
-
     // now for contains5 unpacking
-    'propositions: for (i, value) in contains5.iter().enumerate() {
+    'proposition_5_7: for (i, value) in contains5.iter().enumerate() {
       for c in exact7.chars() {
         if !value.contains(c) {
-          continue 'propositions;
+          continue 'proposition_5_7;
         }
       }
       exact3 = value;
       contains5.remove(i);
       break;
     }
-
     let twos_unique_char = match exact6.contains(exact1.chars().nth(0).unwrap()) {
       true => exact1.chars().nth(1).unwrap(),
       false => exact1.chars().nth(0).unwrap(),
