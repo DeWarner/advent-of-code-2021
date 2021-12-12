@@ -1,4 +1,5 @@
 mod d1;
+mod d10;
 mod d2;
 mod d3;
 mod d4;
@@ -69,6 +70,11 @@ fn main() {
     "9" => match args[2].as_str() {
       "a" => d9::a::main(input_file),
       "b" => d9::b::main(input_file),
+      _ => panic!("solution not found"),
+    },
+    "10" => match args[2].as_str() {
+      "a" => d10::a::main(input_file),
+      "b" => d10::b::main(input_file),
       _ => panic!("solution not found"),
     },
     _ => panic!("solution not found"),
