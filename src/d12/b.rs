@@ -41,26 +41,21 @@ impl Nodes {
     &self.nodes.get(name).unwrap().paths
   }
 
-  fn finish_path(&self, before: Vec<String>, end: &str) -> Vec<Vec<String>> {
+  fn finish_path(&self, before: Vec<String>, end: &str, doubled_up: bool) -> Vec<Vec<String>> {
     let mut paths: Vec<Vec<String>> = vec![];
+    let mut doubled_up = doubled_up;
     'next: for node_name in self.get(before.last().unwrap()) {
       let mut new_path = before.clone();
       new_path.push(node_name.to_string());
       if node_name.chars().any(|c| c.is_lowercase()) {
         let appearances = &before.iter().filter(|&n| n == node_name).count();
         // println!("{:?}, {} appeared: {}", before, node_name, appearances);
-        if appearances >= &2usize {
+        if appearances == &2usize {
           continue 'next;
-        } else if appearances >= &1usize {
-          let mut seen = vec![];
-          for node in &before {
-            if node.chars().any(|c| c.is_lowercase()) {
-              if seen.contains(&node) {
-                continue 'next;
-              }
-              seen.push(node);
-            }
-          }
+        } else if appearances == &1usize && doubled_up {
+          continue 'next;
+        } else if appearances == &1usize {
+          doubled_up = true
         }
       }
       if *node_name == before[0] {
@@ -70,7 +65,7 @@ impl Nodes {
         println!("path: {:?}", new_path);
         paths.push(new_path);
       } else {
-        paths.append(&mut self.finish_path(new_path, end));
+        paths.append(&mut self.finish_path(new_path, end, doubled_up));
       }
     }
     paths
@@ -84,6 +79,6 @@ pub fn main(input_file: String) -> String {
     let parts: Vec<String> = line.split("-").map(|s| s.to_string()).collect();
     graph.add(parts.get(0).unwrap(), parts.get(1).unwrap());
   }
-  let paths = graph.finish_path(vec!["start".to_string()], "end");
+  let paths = graph.finish_path(vec!["start".to_string()], "end", false);
   format!("{}", paths.len())
 }
