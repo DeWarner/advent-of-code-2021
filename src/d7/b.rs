@@ -11,7 +11,7 @@ pub fn main(input_file: String) -> String {
         .collect(),
     );
   }
-  let mut sum: i64 = 0;
+  let mut sum: i64;
   let mut position: i64 = 0;
   let mut max: i64 = 0;
   let mut ans_position: i64 = 0;

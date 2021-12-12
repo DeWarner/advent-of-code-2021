@@ -9,8 +9,8 @@ pub fn main(input_file: String) -> String {
     let mut exact2 = "";
     let mut exact3 = "";
     let mut exact4 = "";
-    let mut exact5 = "";
-    let mut exact6 = "";
+    let exact5;
+    let exact6;
     let mut exact7 = "";
     let mut exact8 = "";
     let mut exact9 = "";

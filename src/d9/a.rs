@@ -1,7 +1,7 @@
 pub fn main(input_file: String) -> String {
   let mut map: Vec<Vec<u32>> = vec![];
   let mut sum: u32 = 0;
-  for (i, line) in crate::read::get_reader(&input_file).enumerate() {
+  for (_i, line) in crate::read::get_reader(&input_file).enumerate() {
     let line = line.expect("Could not read line");
     let row: Vec<u32> = line.chars().map(|c| c.to_digit(10).unwrap()).collect();
     map.push(row);
