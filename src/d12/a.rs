@@ -50,6 +50,7 @@ impl Nodes {
         continue;
       }
       if node_name == end {
+        println!("path: {:?}", new_path);
         paths.push(new_path);
       } else {
         paths.append(&mut self.finish_path(new_path, end));
@@ -67,6 +68,5 @@ pub fn main(input_file: String) -> String {
     graph.add(parts.get(0).unwrap(), parts.get(1).unwrap());
   }
   let paths = graph.finish_path(vec!["start".to_string()], "end");
-  println!("paths: \n{:?}", paths);
   format!("{}", paths.len())
 }

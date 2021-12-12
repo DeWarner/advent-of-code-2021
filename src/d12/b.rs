@@ -43,15 +43,31 @@ impl Nodes {
 
   fn finish_path(&self, before: Vec<String>, end: &str) -> Vec<Vec<String>> {
     let mut paths: Vec<Vec<String>> = vec![];
-    for node_name in self.get(before.last().unwrap()) {
+    'next: for node_name in self.get(before.last().unwrap()) {
       let mut new_path = before.clone();
       new_path.push(node_name.to_string());
-      if before.iter().filter(|&n| n == node_name).count() >= 2
-        && node_name.chars().any(|c| c.is_lowercase())
-      {
-        continue;
+      if node_name.chars().any(|c| c.is_lowercase()) {
+        let appearances = &before.iter().filter(|&n| n == node_name).count();
+        // println!("{:?}, {} appeared: {}", before, node_name, appearances);
+        if appearances >= &2usize {
+          continue 'next;
+        } else if appearances >= &1usize {
+          let mut seen = vec![];
+          for node in &before {
+            if node.chars().any(|c| c.is_lowercase()) {
+              if seen.contains(&node) {
+                continue 'next;
+              }
+              seen.push(node);
+            }
+          }
+        }
+      }
+      if *node_name == before[0] {
+        continue 'next;
       }
       if node_name == end {
+        println!("path: {:?}", new_path);
         paths.push(new_path);
       } else {
         paths.append(&mut self.finish_path(new_path, end));
