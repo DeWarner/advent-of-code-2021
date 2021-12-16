@@ -1,8 +1,4 @@
 mod d1;
-mod d10;
-mod d11;
-mod d12;
-mod d13;
 mod d2;
 mod d3;
 mod d4;
@@ -11,6 +7,14 @@ mod d6;
 mod d7;
 mod d8;
 mod d9;
+
+mod d10;
+mod d11;
+mod d12;
+mod d13;
+mod d14;
+mod d15;
+mod d16;
 
 mod read;
 
@@ -93,6 +97,21 @@ fn main() {
     "13" => match args[2].as_str() {
       "a" => d13::a::main(input_file),
       "b" => d13::b::main(input_file),
+      _ => panic!("solution not found"),
+    },
+    "14" => match args[2].as_str() {
+      "a" => d14::a::main(input_file),
+      "b" => d14::b::main(input_file),
+      _ => panic!("solution not found"),
+    },
+    "15" => match args[2].as_str() {
+      "a" => d15::a::main(input_file),
+      "b" => d15::b::main(input_file),
+      _ => panic!("solution not found"),
+    },
+    "16" => match args[2].as_str() {
+      "a" => d16::a::main(input_file),
+      "b" => d16::b::main(input_file),
       _ => panic!("solution not found"),
     },
     _ => panic!("solution not found"),
