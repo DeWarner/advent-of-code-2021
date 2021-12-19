@@ -31,21 +31,19 @@ fn main() {
     args.get(3).unwrap_or(&String::new())
   );
 
-  let input = crate::read::get_reader(&input_file);
-
   let solution = match args[1].as_str() {
     "1" => match args[2].as_str() {
-      "a" => d1::a::main(input),
-      "b" => d1::b::main(input),
+      "a" => d1::a::main(crate::read::get_reader(&input_file)),
+      "b" => d1::b::main(crate::read::get_reader(&input_file)),
       _ => panic!("solution not found"),
     },
     "2" => match args[2].as_str() {
-      "a" => d2::a::main(input),
-      "b" => d2::b::main(input),
+      "a" => d2::a::main(crate::read::get_reader(&input_file)),
+      "b" => d2::b::main(crate::read::get_reader(&input_file)),
       _ => panic!("solution not found"),
     },
     "3" => match args[2].as_str() {
-      "a" => d3::a::main(input),
+      "a" => d3::a::main(crate::read::get_reader(&input_file)),
       "b" => d3::b::main(input_file),
       _ => panic!("solution not found"),
     },

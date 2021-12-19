@@ -1,129 +1,136 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
-struct Grid {
-  grid: HashSet<(usize, usize)>,
-  max_x: usize,
-  max_y: usize,
+struct Map {
+  grid: Vec<Vec<u32>>,
+  best: HashMap<(usize, usize), u32>,
 }
-impl Grid {
-  fn new() -> Grid {
-    Grid {
-      grid: HashSet::new(),
-      max_x: 0,
-      max_y: 0,
-    }
-  }
-  fn add_line(&mut self, line: &str) {
-    let coord: Vec<usize> = line.split(",").map(|s| s.parse().unwrap()).collect();
-    let x = coord.get(0).unwrap();
-    let y = coord.get(1).unwrap();
-    self.add(*x, *y);
-  }
-  fn add(&mut self, x: usize, y: usize) {
-    self.grid.insert((x, y));
-    if self.max_x < x {
-      self.max_x = x;
-    }
-    if self.max_y < y {
-      self.max_y = y;
-    }
-  }
-  fn count(&self) -> usize {
-    self.grid.len()
-  }
-  fn fold(self, fold: &Fold) -> Grid {
-    let mut grid = Grid::new();
-    match fold {
-      Fold::X(x) => {
-        let x = *x;
-        for coord in &self.grid {
-          let i = coord.0;
-          let j = coord.1;
-          if i == x {
-            continue;
-          } else if i > x {
-            grid.add(2 * x - i, j);
-          } else {
-            grid.add(i, j);
-          }
-        }
-      }
-      Fold::Y(y) => {
-        let y = *y;
-        for coord in &self.grid {
-          let i = coord.0;
-          let j = coord.1;
 
-          if j == y {
-            continue;
-          } else if j > y {
-            grid.add(i, 2 * y - j);
-          } else {
-            grid.add(i, j);
-          }
-        }
-      }
-    };
-    grid
-  }
-}
-impl std::fmt::Display for Grid {
+impl std::fmt::Display for Map {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     let mut map = String::new();
-    for y in 0..=self.max_y {
-      for x in 0..=self.max_x {
-        let rep = match self.grid.contains(&(x, y)) {
-          false => '.',
-          true => '#',
-        };
-        map.push(rep)
+    for row in &self.grid {
+      for risk in row {
+        map.push_str(format!("{},\t", risk).as_str());
       }
       map.push('\n');
     }
     map.push('\n');
+
+    for i in 0..self.grid.len() {
+      for j in 0..self.grid[0].len() {
+        match self.best.get(&(i, j)) {
+          Some(best) => map.push_str(format!("{},\t", best).as_str()),
+          None => map.push('_'),
+        }
+      }
+      map.push('\n');
+    }
+    map.push('\n');
+    map.push_str(format!("{:?}", self.best).as_str());
     write!(f, "{}", map)
   }
 }
 
-enum Fold {
-  X(usize),
-  Y(usize),
-}
-
-impl Fold {
-  fn new(line: &str) -> Fold {
-    let orientation = line.chars().nth(11).unwrap();
-    let level = &line[13..];
-    let level_usize: usize = level.parse().unwrap();
-    match orientation {
-      'x' => Fold::X(level_usize),
-      'y' => Fold::Y(level_usize),
-      _ => panic!("unexpected format: {}", line),
-    }
-  }
-}
-
 pub fn main(input_file: String) -> String {
-  let mut grid = Grid::new();
-  let mut folds: Vec<Fold> = Vec::new();
-  let mut folding = false;
+  let mut map: Map = Map {
+    grid: vec![],
+    best: HashMap::new(),
+  };
+  map.best.insert((0, 0), 0);
+  let mut origin: Vec<Vec<u32>> = Vec::new();
   for line in crate::read::get_reader(&input_file) {
     let line = line.expect("Could not read line");
-    if line == "" {
-      folding = true;
-      continue;
-    }
-    if !folding {
-      grid.add_line(&line);
-    } else {
-      folds.push(Fold::new(&line));
+    let row: Vec<u32> = line.chars().map(|c| c.to_digit(10).unwrap()).collect();
+    origin.push(row);
+  }
+  for i_chunk in 0..5 {
+    for row in &origin {
+      let mut bigrow = vec![];
+      for j_chunk in 0..5 {
+        for value in row {
+          bigrow.push(((value - 1 + i_chunk + j_chunk) % 9) + 1)
+        }
+      }
+      map.grid.push(bigrow);
     }
   }
-  println!("{}", grid);
-  for fold in folds {
-    grid = grid.fold(&fold);
-    println!("{}", grid);
+  println!("{}", map);
+  let mut round: Vec<((usize, usize), u32)>;
+  let mut next_round: Vec<((usize, usize), u32)> = vec![((0, 0), 0)];
+  loop {
+    if next_round.len() == 0 {
+      break;
+    }
+    round = next_round;
+    next_round = Vec::new();
+    round.sort_by(|(_, a), (_, b)| a.cmp(b));
+    for (tile, _best) in round {
+      next_round.append(&mut scout(tile, &mut map));
+    }
   }
+  println!("{}", map);
+  format!(
+    "{}",
+    map
+      .best
+      .get(&(map.grid.len() - 1, map.grid[0].len() - 1))
+      .unwrap()
+  )
+}
 
-  format!("{}", grid.count())
+fn scout(start: (usize, usize), map: &mut Map) -> Vec<((usize, usize), u32)> {
+  println!("scouting: {:?}", start);
+  let neighbours = get_neighbours(start, map);
+  let mut next_round: Vec<((usize, usize), u32)> = Vec::new();
+  for neighbour in neighbours {
+    let current_risk = *map.best.get(&start).unwrap();
+    let neighbour_risk = map.grid[neighbour.0][neighbour.1];
+    let new_neighbour_risk = current_risk + neighbour_risk;
+    if let Some(neighbour_best) = map.best.get(&neighbour) {
+      if *neighbour_best <= new_neighbour_risk {
+        continue;
+      }
+    }
+    println!("setting best {:?}, {}", neighbour, new_neighbour_risk);
+    map.best.insert(neighbour, new_neighbour_risk);
+    next_round.push((neighbour, new_neighbour_risk));
+  }
+  next_round
+}
+
+fn get_neighbours(pos: (usize, usize), map: &Map) -> Vec<(usize, usize)> {
+  let mut result = Vec::new();
+  let (i, j) = pos;
+  if (i as i32 - 1) >= 0 {
+    if check_tile_exists(usize_sub(i, 1), j, &map) {
+      result.push((usize_sub(i, 1), j));
+    }
+  }
+  if (j as i32 - 1) >= 0 {
+    if check_tile_exists(i, usize_sub(j, 1), &map) {
+      result.push((i, usize_sub(j, 1)));
+      result.push((i, usize_sub(j, 1)));
+    }
+  }
+  if check_tile_exists(i, j + 1, &map) {
+    result.push((i, j + 1));
+  }
+  if check_tile_exists(i + 1, j, &map) {
+    result.push((i + 1, j));
+  }
+  result
+}
+
+fn check_tile_exists(i: usize, j: usize, map: &Map) -> bool {
+  match map.grid.get(i) {
+    Some(row) => match row.get(j) {
+      Some(_) => true,
+      None => false,
+    },
+    None => false,
+  }
+}
+
+fn usize_sub(a: usize, sub: i32) -> usize {
+  ((a as i32) - sub) as usize
 }
